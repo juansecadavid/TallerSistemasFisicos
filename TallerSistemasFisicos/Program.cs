@@ -2,14 +2,25 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-
-Console.WriteLine("Hola Mundo!");
+using TallerSistemasFisicos;
+int primeravez = 0;
+int tiempo = 0;
+Console.WriteLine("Bienvenido a Save your life!");
 Thread server = new Thread(new ThreadStart(StartServer));
 server.Start();
 while (server.IsAlive)
 {
     Thread.Sleep(5000);
     Console.WriteLine("5 segundos..");
+    tiempo++;
+    if (tiempo==36)
+    {
+        Console.WriteLine("Se acabó el juego");
+        Console.WriteLine("Presiona cualquier tecla para volver a iniciar");
+        Console.ReadKey();
+        //falta algo para reiniciar
+    }
+
 }
 //StartServer();
 Console.WriteLine("\n Presione una tecla para continuar...");
@@ -33,27 +44,33 @@ void StartServer()
         Socket handler = listener.Accept();
 
         // Incoming data from the client.
+        string mensaje = null;
         string data = null;
         byte[] bytes = null;
 
         while (true)
         {
+            if (primeravez==0)
+            {
+                Console.WriteLine("Tu nombre es ");
+                primeravez++;
+            }         
             bytes = new byte[1024];
             int bytesRec = handler.Receive(bytes);
-
             data = Encoding.ASCII.GetString(bytes, 0, bytesRec);
-            Console.WriteLine($"Text received : {data}");
+            Acciones accion = new Acciones($"{data}");
+            Console.WriteLine($"Text received: {accion.accion}");
 
             if (data.Length == 0)
             {
                 break;
             }
-            data = Analizar(data);
+            mensaje=Acciones.Situaciones(accion.accion);
             if (data.Length == 0 || data.Contains("XXX"))
             {
                 break;
             }
-            byte[] msg = Encoding.ASCII.GetBytes(data);
+            byte[] msg = Encoding.ASCII.GetBytes(mensaje);
             handler.Send(msg);
         }
 
@@ -65,42 +82,5 @@ void StartServer()
         Console.WriteLine(e.ToString());
     }
 }
-static string Analizar(string data)
-{
-    string msg = "Comando desconocido";
-    if (data.Contains("Abrir"))
-    {
-        msg = "Puerta Abierta";
 
-    }
-    if (data.Contains("Cerrar"))
-    {
-        msg = "Puerta Cerrada";
-    }
-    if (data.Contains("Adios"))
-    {
-        msg = "Adiós";
-    }
-    if (data.Contains("Abrir ventana"))
-    {
-        msg = "Ventana Abierta";
-    }
-    if (data.Contains("Cerrar ventana"))
-    {
-        msg = "Ventana Cerrada";
-    }
-    if (data.Contains("Ganar juego"))
-    {
-        msg = "Te pasaste el juego";
-    }
-    if (data.Contains("Open web"))
-    {
-        Process p = new Process();
-        p.StartInfo.FileName = @"explorer";
-        p.StartInfo.Arguments = "\"http://upb.edu.co\"";
-        p.Start();
-        p.WaitForExit();
-    }
-    return msg;
-}
 
