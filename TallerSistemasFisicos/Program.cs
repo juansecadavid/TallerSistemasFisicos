@@ -5,14 +5,17 @@ using System.Text;
 using TallerSistemasFisicos;
 int tiempo = 0;
 Console.WriteLine("Bienvenido a Save your life!");
+string aviso = "5 segundos..";
 Thread server = new Thread(new ThreadStart(StartServer));
 server.Start();
 while (server.IsAlive)
 {
     Thread.Sleep(5000);
-    Console.WriteLine("5 segundos..");
+    Console.WriteLine(aviso);
     tiempo++;
-    if (tiempo==36)
+    //Thread.Sleep(2000);
+    //aviso = aviso.Remove(0, 9);
+    /*if (tiempo==36)
     {
         Console.WriteLine("Se acabó el juego");
         Console.WriteLine("Presiona cualquier tecla para volver a iniciar");
@@ -20,7 +23,7 @@ while (server.IsAlive)
         //handler.Shutdown(SocketShutdown.Both);
         //handler.Close();
         //falta algo para reiniciar
-    }
+    }*/
 
 }
 //StartServer();
@@ -49,16 +52,20 @@ void StartServer()
         string mensaje = null;
         string data = null;
         byte[] bytes = null;
+        string perdiste = "Has perdido todas las vidas!, la bruja gana...";
 
         while (true)
-        {
+        {;
             Console.Clear();
             if (primeravez==0)
             {
                 Console.WriteLine("Hola! lamentamos tener que ser tan directos, pero estás en una situación demasiado ¡PELIGROSA!");
-                Console.WriteLine("Es una noche tenue y fría, estás en el ático de una casa abandonada en medio del bosque y luego de ver cómo una bruja asesina a tus amigos, tendrás que intentar irte a toda prisa para salvar tu vida.");
+                Console.WriteLine("\nEs una noche tenue y fría, estás en el ático de una casa abandonada en medio del bosque y luego de ver cómo una bruja asesina a tus amigos, tendrás que intentar irte a toda prisa para salvar tu vida.");
                 Console.WriteLine("Pero no creas que será fácil salir...");
-                Console.WriteLine("Escribe INICIO para comenzar");
+                Console.WriteLine("\nInstrucciones:\nPara cada situacion tendrás que elgir entre dos opciones, y para elegirla deberás escribir tal cual el comando como se muestra en cada opcion, pero sin poner lo que haya entre paréntesis.");
+                Console.WriteLine("Ejemplo:\n1) jugar arriba (texto adicional)\t2)saltar al lado(texto adicional)\n En este ejemplo para elegir la opcion 1 deberás escribir: jugar arriba ");
+                Console.WriteLine("\nTambién tendrás 3 vidas, y las perderás si eliges la opción incorrecta en cada situción. Si pierdes las 3 vidas se acabará el juego!, sin embargo, aunque elijas mal pasarás a la siguiente situacion mientras tengas vidas disponibles");
+                Console.WriteLine("\nEscribe INICIO para comenzar");
             }
             Console.WriteLine($"{Acciones.situaciones[situacion]}");          
             
@@ -70,14 +77,14 @@ void StartServer()
                 primeravez++;
             }
             accion.accion=$"{data}";
-            Console.WriteLine($"Text received: {accion.accion}");
+            Console.WriteLine($"Acción recibida: {accion.accion}");
 
             if (data.Length == 0)
             {
                 break;
             }
             mensaje=Acciones.Situaciones(accion.accion);
-            if(mensaje == "Comando desconocido")
+            if (mensaje == "Comando desconocido: Vuelve a intentar!")
             {
                 if (primeravez == 0)
                 {
@@ -97,7 +104,13 @@ void StartServer()
                 break;
             }
             byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+            byte[] ret = Encoding.ASCII.GetBytes(perdiste);
             handler.Send(msg);
+            if(Acciones.vidas==0)
+            {
+                handler.Send(ret);
+                Environment.Exit(0);
+            }
         }
 
         handler.Shutdown(SocketShutdown.Both);
