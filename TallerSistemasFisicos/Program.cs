@@ -67,7 +67,7 @@ void StartServer()
                 Console.WriteLine("\nTambién tendrás 3 vidas, y las perderás si eliges la opción incorrecta en cada situción. Si pierdes las 3 vidas se acabará el juego!, sin embargo, aunque elijas mal pasarás a la siguiente situacion mientras tengas vidas disponibles");
                 Console.WriteLine("\nEscribe INICIO para comenzar");
             }
-            Console.WriteLine($"{Acciones.situaciones[situacion]}");          
+            Console.WriteLine($"{Acciones.situaciones[situacion]}\nVidas disponibles: {Acciones.vidas}");          
             
             bytes = new byte[1024];
             int bytesRec = handler.Receive(bytes);
@@ -105,12 +105,14 @@ void StartServer()
             }
             byte[] msg = Encoding.ASCII.GetBytes(mensaje);
             byte[] ret = Encoding.ASCII.GetBytes(perdiste);
-            handler.Send(msg);
-            if(Acciones.vidas==0)
+            if (Acciones.vidas == 0)
             {
                 handler.Send(ret);
                 Environment.Exit(0);
+                break;
             }
+            handler.Send(msg);
+            
         }
 
         handler.Shutdown(SocketShutdown.Both);
