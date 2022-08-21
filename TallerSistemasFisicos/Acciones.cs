@@ -36,7 +36,7 @@ namespace TallerSistemasFisicos
                 vidas--;
                 msg = $"Resbalaste mientras ibas hacia la ventana y caiste herido en el segundo piso, mala eleccion! \nTe quedan {vidas} vidas";
             }
-            if (data.Contains("Bajar las escaleras"))
+            if (data.Contains("Bajar"))
             {
                 msg = $"Bajaste al segundo piso, buena eleccion!\nTe quedan {vidas} vidas";
             }
